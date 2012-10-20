@@ -1,3 +1,5 @@
+#include <math.h>
+
 /* 
 Robot 1 is based off the old RAD platform with 2 motors and built in gear boxes
 on each side. The movement is controled by tank treads. Other than this stock 
@@ -13,7 +15,8 @@ James Klein
 //initial global values
 int distServoPin = 6; //2; //servo signal pin for servo that the ultrasonic distance sensor is attached to
 Servo distSensorServo;  // create front servo object to control a servo
-int distServoPosition = 85; // variable to store the servo position. 83 center; 0 far right; 166 far left
+int distServoPosition = 86; // variable to store the servo position. 86 center; 0 far right; 172 far left. 
+                            //89 is temporary center until servo is calibrated. the entire thing is 3 clicks off so 3 is the far right
 
 int ultraSoundSignal = 7; // Ultrasound signal pin (SIG on sensor)
 unsigned long echo = 0; //initialize echo variable to 0
@@ -48,7 +51,11 @@ int motorQuarter = 125; //quarter speed
 
 int i = 0;
 
-//IR CODE
+// We need to use the 'raw' pin reading methods
+// because timing is very important here and the digitalRead()
+// procedure is slower!
+//uint8_t IRpin = 2;
+// Digital pin #2 is the same as Pin D2 see
 #define IRpin_PIN PIND
 #define IRpin 2
 
@@ -68,7 +75,8 @@ int i = 0;
 uint16_t pulses[NUMPULSES][2]; // pair is high and low pulse
 uint8_t currentpulse = 0; // index for pulses we're storing
 
-#include <irCodes.h>
+#include <ircodes.h>
+
 //END IR CODE
 
 //master run statement when sketch starts
@@ -76,12 +84,12 @@ void setup(){
   int ultraSoundSignal = 7; // Ultrasound signal pin (SIG on sensor): This code is here because the program is not recognizing it as a global variable???     
   Serial.begin(9600);     // set up Serial library at 9600 bps. this initalizes
                           //the serial monitor for feedback from the board.
-  Serial.println("Check for program and monitor start!"); //check that the program and monitor has started 
+  Serial.println("Check for program and monitor start! Ready to decode IR"); //check that the program and monitor has started 
   
   //Set pin modes
   pinMode(ultraSoundSignal, OUTPUT); //distance sensor set pin mode
   
-  //distSensorServo.attach(distServoPin);  // attaches the servo on servo pin to the servo object
+  distSensorServo.attach(distServoPin);  // attaches the servo on servo pin to the servo object
   //panServo.attach(panServoPin);  // attaches the servo on servo pin to the servo object
   //tiltServo.attach(tiltServoPin);  // attaches the servo on servo pin to the servo object
   
@@ -95,6 +103,7 @@ void setup(){
 }
 //master loop statement
 void loop(void){
+  
   //testDistServoMovement();
   //testDistServoAndSensor();   
   //testMotors();
@@ -108,19 +117,51 @@ void loop(void){
   //selfNavigate();
   //slowNav();
   //lightControl();
-  
+  collectDist();
+/*  
   //IR CODE
+  Serial.println("Is loop running?");
   int numberpulses = listenForIR();
+  //Serial.println("After listen for IR");
+  int state = 0; //the state of the bot in terms of the method it is looping
   
   Serial.print("Heard ");
-  Serial.print(numberpulses);
+  Serial.println(numberpulses);
   Serial.println("-pulse long IR signal");
-  commandButton(numberpulses);
+  
+  String s = commandButton(numberpulses);
+  Serial.print(s);
   delay(500);
   //END IR CODE
+*/  
 }
 
 //Functions
+//while sitting still, collect distances
+void collectDist(){
+  String pos = "Position: ";
+  String dist = " Distance: ";
+  String space = ",";
+  
+  for(int i = 3; i < 172; i++){
+    distSensorServo.write(i);
+    delay(200);
+    
+    int c = ping();
+    
+    //double theta = i * (172/180) + 3;
+    //double x = Cos(theta) * c;
+    //double y = Sin(theta) * c;
+    
+    Serial.println(i + space + c);
+    
+    //Serial.println(pos + i + dist + ping());
+  }
+  //turnLeft();
+  //delay(1500);
+  //stopMovement();
+}
+    
 //Distance senor code
 unsigned long ping(){
    int ultraSoundSignal = 7;
@@ -133,7 +174,7 @@ unsigned long ping(){
    pinMode(ultraSoundSignal, INPUT); // Switch signalpin to input
    digitalWrite(ultraSoundSignal, HIGH); // Turn on pullup resistor
    echo = pulseIn(ultraSoundSignal, HIGH); //Listen for echo
-   ultrasoundValue = (echo / 58.138);// * .39; //convert to CM then to inches. Multiply by .39 to get inches.
+   ultrasoundValue = (echo / 5.8138);// * .39; //convert to CM then to inches. Multiply by .39 to get inches.
    return ultrasoundValue;
 }
 //self navigate at a moderately slow speed
@@ -361,7 +402,9 @@ void mobilePanel(){
   
   tiltServo.detach();
   Serial.println("done");
-  /*
+  
+  
+  
   int tiltBack = 120;
   int servoSpeed = 50; //delay between movements
   Serial.println(tiltServo.read());
@@ -388,7 +431,6 @@ void mobilePanel(){
   }
   panServo.detach();
   tiltServo.detach();
-  */
 }
 //Movements
 void stopMovement (){
@@ -510,7 +552,7 @@ void testDistServoMovement(){
 void testDistServoAndSensor(){
   String rightDist = "right distance: ";
   String centerDist = "center distance: ";
-  //String leftDistance = "left distance: ";    //MESSES UP IR
+  String leftDistance = "left distance: ";    //MESSES UP IR
   if(i == 0){
     distSensorServo.write(i); //right most position
     delay(1000);
@@ -537,96 +579,67 @@ void testDistServoAndSensor(){
 }
 
 
+
+
+/*
 //IR CODE
 //what each button does
-void commandButton(int numberpulses){
+String commandButton(int numberpulses){
+  return "something";
   if (IRcompare(numberpulses, sixUp,sizeof(sixUp)/4)) {
-    //Serial.println("six");
-    mobilePanel(); 
+    return "Six Up";
   }
   if (IRcompare(numberpulses, sixDown,sizeof(sixDown)/4)) {
-    //chargeMode();
+    return "Six Down";
   }
   if (IRcompare(numberpulses, fiveUp,sizeof(fiveUp)/4)) {
-    //selfNavigate();
+    return "Five Up";
   }
   if (IRcompare(numberpulses, fiveDown,sizeof(fiveDown)/4)) {
-    //slowNav();
+    return "Five Down";
   }
   if (IRcompare(numberpulses, fourUp,sizeof(fourUp)/4)) {
-    Serial.println("Four Up");
+    return "Four Up";
   }
   if (IRcompare(numberpulses, fourDown,sizeof(fourDown)/4)) {
-    Serial.println("Four Down");
+    return "Four Down";
   }
   if (IRcompare(numberpulses, threeUp,sizeof(threeUp)/4)) {
-    Serial.println("Three Up");
+    return "Three Up";
   }
   if (IRcompare(numberpulses, threeDown,sizeof(threeDown)/4)) {
-    Serial.println("Three Down");
+    return "Three Down";
   }
   if (IRcompare(numberpulses, twoUp,sizeof(twoUp)/4)) {
-    Serial.println("Two Up");
+    return "Two Up";
   }
   if (IRcompare(numberpulses, twoDown,sizeof(twoDown)/4)) {
-    Serial.println("Two Down");
+    return "Two Down";
   }
   if (IRcompare(numberpulses, oneUp,sizeof(oneUp)/4)) {
-    Serial.println("One Up");
+    return "One Up";
   }
   if (IRcompare(numberpulses, oneDown,sizeof(oneDown)/4)) {
-    Serial.println("One Down");
+    return "One Down";
   }
 }
+
 //KGO: added size of compare sample. Only compare the minimum of the two
 boolean IRcompare(int numpulses, int Signal[], int refsize) {
-  int count = min(numpulses,refsize);
+  int count = min(numpulses,refsize);\
   for (int i=0; i< count-1; i++) {
     int oncode = pulses[i][1] * RESOLUTION / 10;
     int offcode = pulses[i+1][0] * RESOLUTION / 10;
-    
-#ifdef DEBUG
-    Serial.print(oncode); // the ON signal we heard
-    Serial.print(" - ");
-    Serial.print(Signal[i*2 + 0]); // the ON signal we want
-#endif
-    
     // check to make sure the error is less than FUZZINESS percent
     if ( abs(oncode - Signal[i*2 + 0]) <= (Signal[i*2 + 0] * FUZZINESS / 100)) {
-#ifdef DEBUG
-      Serial.print(" (ok)");
-#endif
-    } else {
-#ifdef DEBUG
-      Serial.print(" (x)");
-#endif
       // we didn't match perfectly, return a false match
       return false;
-    }
-    
-    
-#ifdef DEBUG
-    Serial.print(" \t"); // tab
-    Serial.print(offcode); // the OFF signal we heard
-    Serial.print(" - ");
-    Serial.print(Signal[i*2 + 1]); // the OFF signal we want
-#endif
-    
+    }    
     if ( abs(offcode - Signal[i*2 + 1]) <= (Signal[i*2 + 1] * FUZZINESS / 100)) {
-#ifdef DEBUG
-      Serial.print(" (ok)");
-#endif
-    } else {
-#ifdef DEBUG
-      Serial.print(" (x)");
-#endif
+
       // we didn't match perfectly, return a false match
       return false;
     }
-    
-#ifdef DEBUG
-    Serial.println();
-#endif
   }
   // Everything matched!
   return true;
@@ -675,7 +688,6 @@ int listenForIR(void) {
     currentpulse++;
   }
 }
-
 void printpulses(void) {
   Serial.println("\n\r\n\rReceived: \n\rOFF \tON");
   for (uint8_t i = 0; i < currentpulse; i++) {
@@ -699,4 +711,5 @@ void printpulses(void) {
   Serial.print(pulses[currentpulse-1][1] * RESOLUTION / 10, DEC);
   Serial.print(", 0};");
 }
-//END IR CODE
+
+*/
