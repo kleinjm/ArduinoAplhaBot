@@ -9,7 +9,6 @@ class Blinker
     Blinker(int pin);
     void dot();
     void dash();
-    void sayHi();
   private:
     int _pin;
 };

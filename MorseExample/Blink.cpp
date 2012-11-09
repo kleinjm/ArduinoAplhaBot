@@ -23,8 +23,3 @@ void Blinker::dash()
   digitalWrite(_pin, LOW);
   delay(250);
 }
-
-void Blinker::sayHi()
-{
-  Serial.println(FOO);
-}

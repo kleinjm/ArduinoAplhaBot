@@ -4,6 +4,5 @@
 #include "Arduino.h"
 
 #define LED_PIN 13
-#define FOO "Hello"
 
 #endif

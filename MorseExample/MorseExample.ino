@@ -8,8 +8,6 @@ void setup() {
 }
 
 void loop() {
-  morse.sayHi();
-  delay(myNumber);
   morse.dot(); morse.dot(); morse.dot();
   morse.dash(); morse.dash(); morse.dash();
   morse.dot(); morse.dot(); morse.dot();
