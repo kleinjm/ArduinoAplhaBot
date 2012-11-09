@@ -1,0 +1,6 @@
+[submodule "IR-Commander"]
+	path = IR-Commander
+	url = git://github.com/adafruit/IR-Commander.git
+[submodule "libraries/IR-Commander"]
+	path = libraries/IR-Commander
+	url = git://github.com/adafruit/IR-Commander.git
