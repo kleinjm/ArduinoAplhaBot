@@ -31,3 +31,7 @@ unsigned long Ultrasound::ping() {
   digitalWrite(_pin, HIGH);
   return pulseIn(_pin, HIGH) / 5.8138;
 }
+
+void Ultrasound::lookAt(int position) {
+  _servo.write(position);
+}
