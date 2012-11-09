@@ -15,6 +15,7 @@ Refactoring in progress by Nathan Lilienthal
 #include "bot.h"
 #include "ultrasound.h"
 #include "solar_panel.h"
+#include "light.h"
 
 // The ALPHABOT :
 // - left_control on 12
@@ -36,6 +37,10 @@ Ultrasound frontUltrasound(7, 6);
 // - bottom photoresistor on pin A3
 // - left photoresistor on pin A2
 SolarPanel panel(4, 5, A4, A5, A3, A2);
+
+// Light
+// - light array is on pin 10
+Light light(10);
 
 void setup() {
   Serial.begin(9600);
