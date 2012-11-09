@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "navigation.h"
+#include "bot.h"
 #include "ultrasound.h"
 #include "variables.h"
 
@@ -11,57 +11,62 @@
 #define FORWARD HIGH
 #define BACKWARD LOW
 
-// Constructor for a Navigation.
-// ultrasound : an ultrasound to assist navigation.
-Navigation::Navigation(int lc, int rc, int lp, int rp) {
+// Constructor for a Bot.
+// without a ultrasound, can only do basic movements.
+Bot::Bot(int lc, int rc, int lp, int rp) {
   _left_control  = lc;
   _right_control = rc;
   _left_power    = lp;
   _right_power   = rp;
   _ultrasound = NULL;
 
+  // Set control pins for wheel motors.
   pinMode(_left_control, OUTPUT);
   pinMode(_right_control, OUTPUT);
 }
 
-Navigation::Navigation(int lc, int rc, int lp, int rp, Ultrasound* u) {
+// Constructor for a Bot.
+// with a pointer to a Ultrasound. Can use distance collection for
+// complex Bots.
+Bot::Bot(int lc, int rc, int lp, int rp, Ultrasound* u) {
   _left_control  = lc;
   _right_control = rc;
   _left_power    = lp;
   _right_power   = rp;
   _ultrasound = u;
 
+  // Set control pins for wheel motors.
   pinMode(_left_control, OUTPUT);
   pinMode(_right_control, OUTPUT);
 }
 
 //Movements
-void Navigation::stop() {
+void Bot::stop() {
   analogWrite(_left_power, MOTOR_OFF);
   analogWrite(_right_power, MOTOR_OFF);
 }
 
-void Navigation::moveForward() {
+void Bot::moveForward() {
   digitalWrite(_left_control, FORWARD);
   digitalWrite(_right_control, FORWARD);
   analogWrite(_left_power, MOTOR_FULL);
   analogWrite(_right_power, MOTOR_FULL);
 }
-void Navigation::moveBackward() {
+void Bot::moveBackward() {
   digitalWrite(_left_control, BACKWARD);
   digitalWrite(_right_control, BACKWARD);
   analogWrite(_left_power, MOTOR_FULL);
   analogWrite(_right_power, MOTOR_FULL);
 }
 
-void Navigation::moveLeft() {
+void Bot::moveLeft() {
   digitalWrite(_left_control, BACKWARD);
   digitalWrite(_right_control, FORWARD);
   analogWrite(_left_power, MOTOR_HALF);
   analogWrite(_right_power, MOTOR_HALF);
 }
 
-void Navigation::moveRight() {
+void Bot::moveRight() {
   digitalWrite(_left_control, FORWARD);
   digitalWrite(_right_control, BACKWARD);
   analogWrite(_left_power, MOTOR_HALF);
@@ -69,36 +74,54 @@ void Navigation::moveRight() {
 }
 
 // Slower movements for crawling
-void Navigation::slowForward() {
+void Bot::slowForward() {
   digitalWrite(_left_control, FORWARD);
   digitalWrite(_right_control, FORWARD);
   analogWrite(_left_power, MOTOR_QUARTER);
   analogWrite(_right_power, MOTOR_QUARTER);
 }
 
-void Navigation::slowBackward() {
+void Bot::slowBackward() {
   digitalWrite(_left_control, BACKWARD);
   digitalWrite(_right_control, BACKWARD);
   analogWrite(_left_power, MOTOR_QUARTER);
   analogWrite(_right_power, MOTOR_QUARTER);
 }
 
-void Navigation::slowLeft() {
+void Bot::slowLeft() {
   digitalWrite(_left_control, BACKWARD);
   digitalWrite(_right_control, FORWARD);
   analogWrite(_left_power, 100);
   analogWrite(_right_power, 100);
 }
 
-void Navigation::slowRight() {
+void Bot::slowRight() {
   digitalWrite(_left_control, FORWARD);
   digitalWrite(_right_control, BACKWARD);
   analogWrite(_left_power, 100);
   analogWrite(_right_power, 100);
+}
+
+//if the bot is too close on it's slight left then adjust the motor to straighten out
+void Bot::adjustLeft(int closeSides, int slightLeft){
+  if(slightLeft < closeSides){
+    analogWrite(_right_power, MOTOR_QUARTER - 80);
+    analogWrite(_left_power, MOTOR_QUARTER);
+    delay(700);
+  }
+}
+
+//if the bot is too close on it's slight right then adjust the motor to straighten out
+void Bot::adjustRight(int closeSides, int slightRight){
+  if(slightRight < closeSides){
+    analogWrite(_left_power, MOTOR_QUARTER - 80);
+    analogWrite(_right_power, MOTOR_QUARTER);
+    delay(700);
+  }
 }
 
 // If the bot is too close then backup and turn the way with the greatest distance
-void Navigation::tooClose() {
+void Bot::tooClose() {
   if (_ultrasound == NULL) return; // Error handling?
   Ultrasound sensor = *_ultrasound;
   int left;
@@ -124,7 +147,7 @@ void Navigation::tooClose() {
 
 
 //self navigate at a moderately slow speed
-void Navigation::slowNav(){
+void Bot::slowNav(){
   if (_ultrasound == NULL) return; // Error handling?
   Ultrasound sensor = *_ultrasound;
 
@@ -185,26 +208,8 @@ void Navigation::slowNav(){
   }
 }
 
-//if the bot is too close on it's slight left then adjust the motor to straighten out
-void Navigation::adjustLeft(int closeSides, int slightLeft){
-  if(slightLeft < closeSides){
-    analogWrite(_right_power, MOTOR_QUARTER - 80);
-    analogWrite(_left_power, MOTOR_QUARTER);
-    delay(700);
-  }
-}
-
-//if the bot is too close on it's slight right then adjust the motor to straighten out
-void Navigation::adjustRight(int closeSides, int slightRight){
-  if(slightRight < closeSides){
-    analogWrite(_left_power, MOTOR_QUARTER - 80);
-    analogWrite(_right_power, MOTOR_QUARTER);
-    delay(700);
-  }
-}
-
 //Self navigates at full speed without solar charging
-void Navigation::selfNavigate() {
+void Bot::selfNavigate() {
   if (_ultrasound == NULL) return; // Error handling?
   Ultrasound sensor = *_ultrasound;
 

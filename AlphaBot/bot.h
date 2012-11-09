@@ -1,15 +1,15 @@
-#ifndef Navigation_h
-#define Navigation_h
+#ifndef Bot_h
+#define Bot_h
 
 #include <Arduino.h>
 #include "ultrasound.h"
 #include "variables.h"
 
-class Navigation
+class Bot
 {
   public:
-    Navigation(int lc, int rc, int lp, int rp);
-    Navigation(int lc, int rc, int lp, int rp, Ultrasound* u);
+    Bot(int lc, int rc, int lp, int rp);
+    Bot(int lc, int rc, int lp, int rp, Ultrasound* u);
     void stop();
     void moveForward();
     void moveBackward();
