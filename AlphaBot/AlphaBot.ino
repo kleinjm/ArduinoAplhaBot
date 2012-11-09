@@ -12,18 +12,30 @@ Refactoring in progress by Nathan Lilienthal
 
 #include <Servo.h>
 #include "variables.h"
-#include "ultrasound.h"
 #include "bot.h"
-
-// The front ultrasound is on pin 7, with a servo on 6.
-Ultrasound frontUltrasound(7, 6);
+#include "ultrasound.h"
+#include "solar_panel.h"
 
 // The ALPHABOT :
-// left_control on 12
-// right_control on 13
-// left_power on 3
-// right_power on 11
+// - left_control on 12
+// - right_control on 13
+// - left_power on 3
+// - right_power on 11
 Bot alphabot(12, 13, 3, 11);
+
+// Front Ultrasound :
+// - ultrasound is on pin 7
+// - servo is on pin 6.
+Ultrasound frontUltrasound(7, 6);
+
+// Solar Panel
+// - pan servo is on pin 4
+// - tilt servo is on pin 5
+// - right photoresistor on pin A5
+// - top photoresistor on pin A4
+// - bottom photoresistor on pin A3
+// - left photoresistor on pin A2
+SolarPanel panel(4, 5, A4, A5, A3, A2);
 
 void setup() {
   Serial.begin(9600);
@@ -31,6 +43,7 @@ void setup() {
 
 void loop() {
 
-  alphabot.stop();
+  int distances[SERVO_RANGE];
+  frontUltrasound.sweep(distances, 0, SERVO_RANGE);
 
 }
