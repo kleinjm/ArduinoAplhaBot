@@ -14,6 +14,7 @@ Refactoring in progress by Nathan Lilienthal
 #include "ultrasound.h"
 #include "variables.h"
 
+// The front ultrasound is on pin 7, with a servo on 6.
 Ultrasound frontUltrasound(7, 6);
 
 void setup() {

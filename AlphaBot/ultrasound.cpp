@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include "ultrasound.h"
 
+// Constructor for an Ultrasound.
+// pin       : sensor's pin
+// servo_pin : servo's control pin
 Ultrasound::Ultrasound(int pin, int servo_pin) {
   _pin = pin;
   _servo.attach(servo_pin);
