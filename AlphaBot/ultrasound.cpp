@@ -6,6 +6,7 @@
 // servo_pin : servo's control pin
 Ultrasound::Ultrasound(int pin, int servo_pin) {
   _pin = pin;
+  pinMode(_pin, OUTPUT);
   _servo.attach(servo_pin);
 }
 

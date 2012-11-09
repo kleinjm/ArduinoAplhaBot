@@ -19,6 +19,9 @@ Navigation::Navigation(int lc, int rc, int lp, int rp) {
   _left_power    = lp;
   _right_power   = rp;
   _ultrasound = NULL;
+
+  pinMode(_left_control, OUTPUT);
+  pinMode(_right_control, OUTPUT);
 }
 
 Navigation::Navigation(int lc, int rc, int lp, int rp, Ultrasound* u) {
@@ -27,6 +30,9 @@ Navigation::Navigation(int lc, int rc, int lp, int rp, Ultrasound* u) {
   _left_power    = lp;
   _right_power   = rp;
   _ultrasound = u;
+
+  pinMode(_left_control, OUTPUT);
+  pinMode(_right_control, OUTPUT);
 }
 
 //Movements
