@@ -19,8 +19,12 @@ class Navigation
     void slowBackward();
     void slowLeft();
     void slowRight();
+    void adjustLeft(int closeSides, int slightLeft);
+    void adjustRight(int closeSides, int slightRight);
 
     void tooClose();
+    void slowNav();
+    void selfNavigate();
   private:
     Ultrasound* _ultrasound;
 
