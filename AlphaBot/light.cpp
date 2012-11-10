@@ -20,8 +20,8 @@ void Light::off() {
 
 // Strobe the light at the given frequency.
 void Light::strobe(int freq) {
-  digitalWrite(_pin, HIGH);
+  on();
   delay(freq);
-  digitalWrite(_pin, LOW);
+  off();
   delay(freq);
 }

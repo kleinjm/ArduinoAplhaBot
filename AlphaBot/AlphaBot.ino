@@ -53,7 +53,6 @@ void setup() {
 
 void loop() {
 
-  int distances[SERVO_RANGE];
-  ultrasound.sweep(distances, 0, SERVO_RANGE);
+  light.strobe(100);
 
 }
