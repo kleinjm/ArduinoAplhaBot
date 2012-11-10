@@ -27,7 +27,7 @@ Bot alphabot(12, 13, 3, 11);
 // Front Ultrasound :
 // - ultrasound is on pin 7
 // - servo is on pin 6.
-Ultrasound frontUltrasound(7, 6);
+Ultrasound ultrasound(7, 6);
 
 // Solar Panel
 // - pan servo is on pin 4
@@ -36,7 +36,7 @@ Ultrasound frontUltrasound(7, 6);
 // - top photoresistor on pin A4
 // - bottom photoresistor on pin A3
 // - left photoresistor on pin A2
-SolarPanel panel(4, 5, A4, A5, A3, A2);
+SolarPanel solar_panel(4, 5, A4, A5, A3, A2);
 
 // Light
 // - light array is on pin 10
@@ -44,11 +44,16 @@ Light light(10);
 
 void setup() {
   Serial.begin(9600);
+
+  // attach sensors to bot.
+  alphabot.attach_ultrasound(&ultrasound);
+  alphabot.attach_solar_panel(&solar_panel);
+  alphabot.attach_light(&light);
 }
 
 void loop() {
 
   int distances[SERVO_RANGE];
-  frontUltrasound.sweep(distances, 0, SERVO_RANGE);
+  ultrasound.sweep(distances, 0, SERVO_RANGE);
 
 }
