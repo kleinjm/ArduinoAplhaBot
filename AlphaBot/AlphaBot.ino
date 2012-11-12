@@ -13,9 +13,6 @@ Refactoring in progress by Nathan Lilienthal
 #include <Servo.h>
 #include "variables.h"
 #include "bot.h"
-//#include "ultrasound.h"
-//#include "solar_panel.h"
-//#include "light.h"
 
 // The ALPHABOT :
 // - left_control on 12
@@ -35,11 +32,10 @@ void setup() {
 
 void loop() {
 
-  alphabot.light.strobe(100);
-//  if (alphabot.hasLight) {
-//    alphabot.light.strobe(100);
-//  } else {
-//    Serial.println("No Light Attached");
-//  }
+  if (alphabot.hasLight) {
+    alphabot.light.strobe(100);
+  } else {
+    Serial.println("No Light Attached");
+  }
   
 }
