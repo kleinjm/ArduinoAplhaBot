@@ -38,4 +38,10 @@ void loop() {
     Serial.println("No Light Attached");
   }
   
+  if (alphabot.hasUltrasound) {
+    alphabot.ultrasound.rotate(45);
+  } else {
+    Serial.println("No Ultrasound Attached");    
+  }
+  
 }

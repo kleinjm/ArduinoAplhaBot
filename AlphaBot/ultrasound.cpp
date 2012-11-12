@@ -60,7 +60,7 @@ unsigned long Ultrasound::ping() {
   return pulseIn(_pin, HIGH) / 5.8138;
 }
 
-void Ultrasound::lookAt(int position) {
+void Ultrasound::rotate(int position) {
   if (!_pin) return;  // ensure something exists
   
   _servo.write(position);
