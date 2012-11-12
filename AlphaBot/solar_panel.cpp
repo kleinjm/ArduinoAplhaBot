@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include "solar_panel.h"
 
+Servo _pan_servo;
+Servo _tilt_servo;
+
 // Constructor for an SolarPanel.
 // pan    : pan servo's pin
 // tilt   : tilt servo's pin
@@ -8,18 +11,29 @@
 // right  : right photoresistor's pin
 // bottom : bottom photoresistor's pin
 // left   : left photoresistor's pin
+SolarPanel::SolarPanel() { };
 SolarPanel::SolarPanel(int pan, int tilt, int top, int right, int bottom, int left) {
+  _pan_servo_pin = pan;
+  _tilt_servo_pin = tilt;
   _top_photoresistor    = top;
   _right_photoresistor  = right;
   _bottom_photoresistor = bottom;
   _left_photoresistor   = left;
+}
 
-  _pan_servo.attach(pan);
-  _tilt_servo.attach(tilt);
+// Function to be called when adding component
+// to a bot. ( in setup() )
+void SolarPanel::setup() {
+  if (!_pan_servo_pin) return;  // ensure something exists
+  
+  _pan_servo.attach(_pan_servo_pin);
+  _tilt_servo.attach(_tilt_servo_pin);
 }
 
 //place panel on top and center of the bot
 void SolarPanel::reset() {
+  if (!_pan_servo_pin) return;  // ensure something exists
+  
   int tilt_to = 120;
   int servo_delay = 50;
   int pan_angle = _pan_servo.read();

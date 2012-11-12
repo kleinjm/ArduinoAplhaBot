@@ -8,14 +8,16 @@ class SolarPanel
 {
   public:
     SolarPanel(int pan, int tilt, int top, int right, int bottom, int left);
+    SolarPanel();
+    void setup();
     void reset();
   private:
     int _top_photoresistor;
     int _right_photoresistor;
     int _bottom_photoresistor;
     int _left_photoresistor;
-    Servo _pan_servo;
-    Servo _tilt_servo;
+    int _pan_servo_pin;
+    int _tilt_servo_pin;
 };
 
 #endif

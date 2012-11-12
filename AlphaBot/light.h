@@ -7,6 +7,8 @@ class Light
 {
   public:
     Light(int pin);
+    Light();
+    void setup();
     void on();
     void off();
     void strobe(int freq);

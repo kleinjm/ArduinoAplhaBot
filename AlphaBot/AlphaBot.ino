@@ -13,9 +13,9 @@ Refactoring in progress by Nathan Lilienthal
 #include <Servo.h>
 #include "variables.h"
 #include "bot.h"
-#include "ultrasound.h"
-#include "solar_panel.h"
-#include "light.h"
+//#include "ultrasound.h"
+//#include "solar_panel.h"
+//#include "light.h"
 
 // The ALPHABOT :
 // - left_control on 12
@@ -24,34 +24,22 @@ Refactoring in progress by Nathan Lilienthal
 // - right_power on 11
 Bot alphabot(12, 13, 3, 11);
 
-// Front Ultrasound :
-// - ultrasound is on pin 7
-// - servo is on pin 6.
-Ultrasound ultrasound(7, 6);
-
-// Solar Panel
-// - pan servo is on pin 4
-// - tilt servo is on pin 5
-// - right photoresistor on pin A5
-// - top photoresistor on pin A4
-// - bottom photoresistor on pin A3
-// - left photoresistor on pin A2
-//SolarPanel solar_panel(4, 5, A4, A5, A3, A2);
-
-// Light
-// - light array is on pin 10
-Light light(10);
-
 void setup() {
   Serial.begin(9600);
 
   // attach sensors to bot.
-//  alphabot.attach_ultrasound(&ultrasound);
-//  alphabot.attach_solar_panel(&solar_panel);
-//  alphabot.attach_light(&light);
+  alphabot.attach_ultrasound(7, 9);
+  alphabot.attach_solar_panel(4, 5, A4, A5, A3, A2);
+  alphabot.attach_light(10);
 }
 
 void loop() {
 
-
+  alphabot.light.strobe(100);
+//  if (alphabot.hasLight) {
+//    alphabot.light.strobe(100);
+//  } else {
+//    Serial.println("No Light Attached");
+//  }
+  
 }

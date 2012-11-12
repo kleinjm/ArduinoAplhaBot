@@ -11,6 +11,18 @@ class Bot
 {
   public:
     Bot(int lc, int rc, int lp, int rp);
+
+    /* COMPONENTS */
+    Ultrasound ultrasound;
+    bool hasUltrasound;
+    void attach_ultrasound(int pin, int servo_pin);
+    SolarPanel solar_panel;
+    bool hasSolarPanel;
+    void attach_solar_panel(int pan, int tilt, int top, int right, int bottom, int left);
+    Light light;
+    bool hasLight;
+    void attach_light(int pin);
+
     void stop();
     void moveForward();
     void moveBackward();
@@ -23,25 +35,18 @@ class Bot
     void adjustLeft(int closeSides, int slightLeft);
     void adjustRight(int closeSides, int slightRight);
 
-    void attach_ultrasound(Ultrasound* ptr);
-    void attach_solar_panel(SolarPanel* ptr);
-    void attach_light(Light* ptr);
+
 
     void tooClose();
     void slowNav();
     void selfNavigate();
   private:
-    Ultrasound* _ultrasound_ptr;
-    SolarPanel* _solar_panel_ptr;
-    Light* _light_ptr;
-
     // Motor control pins.
     int _left_control;
     int _right_control;
     // Motor power pins.
     int _left_power;
     int _right_power;
-
 };
 
 #endif

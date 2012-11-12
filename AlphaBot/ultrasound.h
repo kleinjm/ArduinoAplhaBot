@@ -8,6 +8,8 @@ class Ultrasound
 {
   public:
     Ultrasound(int pin, int servo_pin);
+    Ultrasound();
+    void setup();
     void attach();
     void detach();
     void sweep(int distances[], int from, int to);
