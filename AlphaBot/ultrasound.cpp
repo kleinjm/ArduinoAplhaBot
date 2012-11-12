@@ -1,13 +1,23 @@
 #include <Arduino.h>
 #include "ultrasound.h"
 
+Servo _servo;
+
 // Constructor for an Ultrasound.
 // pin       : sensor's pin
 // servo_pin : servo's control pin
 Ultrasound::Ultrasound(int pin, int servo_pin) {
+  _servo_pin = servo_pin;
   _pin = pin;
   pinMode(_pin, OUTPUT);
-  _servo.attach(servo_pin);
+}
+
+void Ultrasound::attach() {
+  _servo.attach(_servo_pin);
+}
+
+void Ultrasound::detach() {
+  _servo.detach();
 }
 
 // modifies the given array to the distances in front of the sensor.

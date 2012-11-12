@@ -8,8 +8,8 @@
 #define MOTOR_HALF 127    // Half motor speed
 #define MOTOR_QUARTER 125 // Quarter motor speed
 
-#define FORWARD HIGH
-#define BACKWARD LOW
+#define FORWARD LOW
+#define BACKWARD HIGH
 
 // Constructor for a Bot.
 // without a ultrasound, can only do basic movements.

@@ -36,7 +36,7 @@ Ultrasound ultrasound(7, 6);
 // - top photoresistor on pin A4
 // - bottom photoresistor on pin A3
 // - left photoresistor on pin A2
-SolarPanel solar_panel(4, 5, A4, A5, A3, A2);
+//SolarPanel solar_panel(4, 5, A4, A5, A3, A2);
 
 // Light
 // - light array is on pin 10
@@ -46,13 +46,12 @@ void setup() {
   Serial.begin(9600);
 
   // attach sensors to bot.
-  alphabot.attach_ultrasound(&ultrasound);
-  alphabot.attach_solar_panel(&solar_panel);
-  alphabot.attach_light(&light);
+//  alphabot.attach_ultrasound(&ultrasound);
+//  alphabot.attach_solar_panel(&solar_panel);
+//  alphabot.attach_light(&light);
 }
 
 void loop() {
 
-  light.strobe(100);
 
 }
