@@ -1,0 +1,58 @@
+Bot1 - RAD platform with treds
+Goal: Self navigating bot
+
+Project start: December 2011
+
+Note: Battery Series = Add voltages, no change in amps
+      Parallel = No change in voltage, add amps
+      Watts = Amps x volts
+
+First couple weeks of work:
+Created double layer board with 2 relays on top and 2 relays on bottom to control forward and backwards movement for each motor. Sloppy DPDT relay system but it worked.
+Mounted distance sensor and gained proper readings. Used floppy drive connector to attach wires to pins.
+Programmed movement methods in C++
+Attached battery pack: Shuanbao - 7 cells; 1.2V, 2/3A 1100mAh
+Used pc 4 pin drive connector for power wires and kept stock power connector for charging.
+Charger: POWER model # CL-3515; DC 8.4V250mA
+Connected 9V plug to ardunio board for wireless power.
+Successful self navigation on small battery charge. Navigated about 9sqr feet then battery died.
+Charged battery blew a few relays and left motor.
+
+4/25/12
+Installed replacement motor on left side.
+Recieved DPDT Relays x 4: AXICOM 5v DC ***HAS DATASHEET***
+Finished with one control board half built but white stiff wire does not stick to solder well so set back.
+
+4/26/12
+Finished 2 boards now each with 1 DPDT relay and 1 regular relay.
+Motor test.
+Hooked up distance sensor again and got good input.
+Road test with 2 9v, one for board and one for motors.
+Errors:
+Works normal but left motor is almost twice as powerful as right motor. Does a 3 foot circle on open ground.
+Distance sensor sometimes loses conection on either 5v or ground thus sending a 0 for x and putting the program into the alternate route backup and turn left. Should be an easy connection problem fix.
+
+4/29/12
+Got 2 new motors: RS code: 273-223 1.5-3.0v .98A
+Bad connections on right motor internally. Fixed by opening and soldering two connecting brushes then bending back to to touch the motor shaft.
+Almost perfect run due but still a bit to the left. Program runs almost perfect too but looked like there was one time where the sensore messed up.
+Once the left motor is fixed then get servo and place sensor on that for bigger view.
+Still using 9v batt.
+
+5/4/12
+Fixed left motor but still not perfect.
+Placed potentiaometer on left motor to make speeds more even. It works as a resistance that now seems too strong but makes them a bit more even.
+Got servo: Futaba S3004; 5-6v power. digital signal on board
+Mounted servo and distance sensor together on front.
+Created program that runs servo. max spin 0-166 which looks like a full 180 degrees.
+Wrote self navigation program again that looks for longest path.
+Ran bot but 9v for board power isn't enough so used long USB and got feedback as well.
+9v for motors dies quick too.
+Time for total redesign on new platform with one or two low voltage motors on tires.
+Power has been the main problem the entire time so it is time for a perminant solution that is rechargable and work for everything.
+
+Current Hardware:
+Board: Arduino UNO
+Tred Motors on platform: RS code: 273-223 1.5-3.0v .98A
+Distance sensor: Parallax PING - GND, 5V, Signal
+servo: Futaba S3004; 5-6v power
