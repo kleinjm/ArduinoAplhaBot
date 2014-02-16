@@ -4,7 +4,7 @@ Goal: Self navigating bot
 Project start: December 2011
 
 Note: Battery Series = Add voltages, no change in amps
-              Parallel = No change in voltage, add amps
+      Parallel = No change in voltage, add amps
       Watts = Amps x volts
 
 First couple weeks of work:
