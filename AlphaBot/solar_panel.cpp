@@ -5,6 +5,9 @@
 Servo _pan_servo;
 Servo _tilt_servo;
 
+#define TILT_MIN 95
+#define TILT_MAX 180
+
 // Constructor for an SolarPanel.
 // pan    : pan servo's pin
 // tilt   : tilt servo's pin
@@ -39,6 +42,7 @@ void SolarPanel::setup() {
     
     connectPan(true);
     connectTilt(true);
+    reset();
   }
 }
 
@@ -87,11 +91,11 @@ void SolarPanel::pan(int pos){
 //set the tilt servo to the given position. This is not a smooth movement, it's a snap to position
 void SolarPanel::tilt(int pos){
   if(_tilt_servo_pin != NULL){
-    _tilt_servo.write(pos);
-    _tilt_pos = pos;
-  }else{
-    Serial.println("No tilt servo attached");
-  }
+    if(pos < TILT_MAX && pos > TILT_MIN ){
+      _tilt_servo.write(pos);
+      _tilt_pos = pos;
+    }else{ if(debug){ Serial.println("Cannot move beyond servo limits"); } }
+  }else{ if(debug){ Serial.println("No tilt servo attached"); } }
 }
 
 //place panel on top and center of the bot
@@ -188,7 +192,7 @@ void SolarPanel::trackLight(){
 //    delay(1000);
 //  }else{
   
-  if(debug){
+  if(debug && false){
     String str1 = "Pan servo reads ";
     String str2 = " and Tilt servo reads ";
     Serial.println(str1 + _pan_pos + str2 + _tilt_pos);
@@ -206,11 +210,11 @@ void SolarPanel::trackLight(){
     connectPan(false);
   }
   delay(SPEED);
-  if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + TBRANGE && _tilt_pos > 100){
+  if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + TBRANGE && _tilt_pos > TILT_MIN){
     if(debug){ Serial.println("Turn panel up"); }
     connectTilt(true);
     tilt(_tilt_pos - 1);
-  }else if(analogRead(_bottom_photoresistor) > analogRead(_top_photoresistor) + TBRANGE && _tilt_pos < 180){
+  }else if(analogRead(_bottom_photoresistor) > analogRead(_top_photoresistor) + TBRANGE && _tilt_pos < TILT_MAX){
     if(debug){ Serial.println("Turn panel down"); }
     connectTilt(true);
     tilt(_tilt_pos + 1);
