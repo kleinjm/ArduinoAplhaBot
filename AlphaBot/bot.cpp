@@ -26,8 +26,13 @@ void Bot::attach_ultrasound(int pin, int servo_pin) {
   ultrasound.setup();
   hasUltrasound = true;
 }
-void Bot::attach_solar_panel(int pan, int tilt, int top, int right, int bottom, int left) {
-  solar_panel = SolarPanel(pan, tilt, top, right, bottom, left);
+void Bot::attach_solar_panel(boolean debug, int pan, int tilt, int top, int right, int bottom, int left) {
+  solar_panel = SolarPanel(debug, pan, tilt, top, right, bottom, left);
+  solar_panel.setup();
+  hasSolarPanel = true;
+}
+void Bot::attach_solar_panel_no_servos(int top, int right, int bottom, int left){
+  solar_panel = SolarPanel(top, right, bottom, left);
   solar_panel.setup();
   hasSolarPanel = true;
 }
@@ -35,6 +40,13 @@ void Bot::attach_light(int pin) {
   light = Light(pin);
   light.setup();
   hasLight = true;
+}
+
+//print the analog read vlaue of the specified pin
+void Bot::analogPrint(int pin){
+  String str1 = "Pin ";
+  String str2 = " value is ";
+  Serial.println(str1 + pin + str2 + analogRead(pin));
 }
 
 //
