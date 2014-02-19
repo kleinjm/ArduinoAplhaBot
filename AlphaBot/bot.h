@@ -44,7 +44,10 @@ class Bot
     void selfNavigate();
     
     void analogPrint(int pin);
-    bool resting;   //is the solar panel in resting position?
+    void autoHeadlight();  //turn on the light if it is dark out and not already on
+    
+    boolean cycleCheck(unsigned long *lastMillis, unsigned int cycle); //multithreading cycle timer
+    bool resting; //tells us if the panel is in resting position. This is set once when we try to rest so that the servos dont need to turn on
   private:
     // Motor control pins.
     int _left_control;

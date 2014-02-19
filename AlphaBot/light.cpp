@@ -14,6 +14,7 @@ void Light::setup() {
   if (!_pin) return;  // ensure pin exists
   
   pinMode(_pin, OUTPUT);
+  active = false;
 }
 
 // Turn on the light.
@@ -21,6 +22,7 @@ void Light::on() {
   if (!_pin) return;  // ensure pin exists
 
   digitalWrite(_pin, HIGH);
+  active = true;
 }
 
 // Turn off the light.
@@ -28,6 +30,7 @@ void Light::off() {
   if (!_pin) return;  // ensure pin exists
   
   digitalWrite(_pin, LOW);
+  active = false;
 }
 
 // Strobe the light at the given frequency.

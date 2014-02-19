@@ -18,7 +18,7 @@ Bot::Bot(int lc, int rc, int lp, int rp) {
   _right_control = rc;
   _left_power    = lp;
   _right_power   = rp;
-  resting = false;   //not yet resting
+  resting = false;
 }
 
 /* CONNECT SENSORS */
@@ -31,6 +31,7 @@ void Bot::attach_solar_panel(boolean debug, int pan, int tilt, int top, int righ
   solar_panel = SolarPanel(debug, pan, tilt, top, right, bottom, left);
   solar_panel.setup();
   hasSolarPanel = true;
+  resting = solar_panel.isResting(false);  //check if it is resting and then disconnect servos
 }
 void Bot::attach_solar_panel_no_servos(int top, int right, int bottom, int left){
   solar_panel = SolarPanel(top, right, bottom, left);
@@ -48,6 +49,35 @@ void Bot::analogPrint(int pin){
   String str1 = "Pin ";
   String str2 = " value is ";
   Serial.println(str1 + pin + str2 + analogRead(pin));
+}
+
+//turn on the light if it is dark out and not already on
+void Bot::autoHeadlight(){
+  if(hasSolarPanel && hasLight){
+    if(solar_panel.isDark()){
+      if(!light.active){
+        light.on();
+      }
+    }else{
+      if(light.active){  //we dont need to turn it off it it already is
+        light.off();
+      }
+    }
+  }
+}
+
+//method that checks cycles to multithread at different rates
+//each thread passes a counter, lastMillis, and a cycle speed
+boolean Bot::cycleCheck(unsigned long *lastMillis, unsigned int cycle) 
+{
+  unsigned long currentMillis = millis();
+  if(currentMillis - *lastMillis >= cycle)
+  {
+    *lastMillis = currentMillis;
+    return true;
+  }
+  else
+    return false;
 }
 
 //

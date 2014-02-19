@@ -24,11 +24,19 @@ Refactoring in progress by Nathan Lilienthal
 // - right_power on 11
 Bot abot(12, 13, 3, 11);
 
-String mode = "nuetral"; //what the bot is currently doing
-
 int IRpin = 2;  // pin for the IR sensor
 IRrecv irrecv(IRpin);
 decode_results results;
+
+//threading variables
+#define autoHeadlightCycle 1000U  //U means unsigned (in this case an int)
+unsigned long autoHeadlightLM = 0; //LM = LastMillis
+
+#define irRecCycle 500U
+unsigned long irRecLM = 0;
+
+#define trackLightCycle 50U
+unsigned long trackLightLM = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -42,22 +50,20 @@ void setup() {
 }
 
 void loop() {
-  
-//  if(Serial.available()){  // FIX: I think this is the fix (available) needed for the remote read in the serial monitor
+//  if(Serial.available()){ 
 //    int input = Serial.read();
 //    abot.solar_panel.userControl(input);
 //  }
-  
-//  if(abot.hasSolarPanel && mode == "charge"){
-//    abot.solar_panel.trackLight();
-//  } else {
-//    Serial.println("No Solar Panel Attached");    
-//  }¨
-  
-  if (irrecv.decode(&results)){
-    irrecv.resume();   // Receive the next value
-  }
 
+  if(abot.cycleCheck(&autoHeadlightLM, autoHeadlightCycle)){
+    abot.autoHeadlight();
+  }
+  if(abot.cycleCheck(&irRecLM, irRecCycle)){
+    if (irrecv.decode(&results)){
+      irrecv.resume();   // Receive the next value
+    }
+  }
+  
   switch (results.value){
     case six_up:          // IR codes in variables.h
       Serial.println("Six up - light on");
@@ -69,29 +75,37 @@ void loop() {
       break;
     case five_up:
       Serial.println("Five up - charge mode");
-      abot.solar_panel.trackLight();
+      if(abot.cycleCheck(&trackLightLM, trackLightCycle)){
+        abot.solar_panel.trackLight();
+        abot.resting = abot.solar_panel.isResting(true);
+      }
       break;
     case five_down:
       Serial.println("Five down - reset");
       if(!abot.resting){
-        abot.resting = abot.solar_panel.reset();
+        abot.resting = abot.solar_panel.rest();
       }
-      break;
+      //Serial.println(abot.resting);
+      break
     case four_up:
       Serial.println("Four up - tilt up");
       abot.solar_panel.tiltUpSafe();
+      abot.resting = abot.solar_panel.isResting(true);
       break;
     case four_down:
       Serial.println("Four down - tilt down");
       abot.solar_panel.tiltDown();
+      abot.resting = abot.solar_panel.isResting(true);
       break;
     case three_up:
       Serial.println("Three up - pan left");
       abot.solar_panel.panLeftSafe();
+      abot.resting = abot.solar_panel.isResting(true);
       break;
     case three_down:
       Serial.println("Three down - pan right");
       abot.solar_panel.panRightSafe();
+      abot.resting = abot.solar_panel.isResting(true);
       break;
     case two_up:
       Serial.println("Two up");

@@ -13,7 +13,7 @@ class SolarPanel
     SolarPanel(int top, int right, int bottom, int left);
     SolarPanel();
     void setup();
-    bool reset();    //returns true for success
+    bool rest();    //returns true for success
     void readoutSensors();
     int pan(int pos);
     int panSafe(int pos); //panning that makes sure that the tilt is past the clearance value. Good for user control
@@ -31,6 +31,9 @@ class SolarPanel
     int tiltSmooth(int pos, int spd);
     int panSmooth(int pos); //move to the pos smoothly, not a snap
     int panSmooth(int pos, int spd);
+    bool isDark();  //returns true if the light from all photoresistors is under a certain threshold
+    bool isResting(bool attachServ);  //this attaches the servos and checks if it is resting. This is needed after a movement to set the resting bool. True means leave servos attached. False means detach
+    void positionSmooth(int panPos, int tiltPos); //move the pan and tilt servos to a position at the same time to make smoth movements
   private:
     boolean debug;
     int _top_photoresistor;

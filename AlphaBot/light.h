@@ -12,6 +12,7 @@ class Light
     void on();
     void off();
     void strobe(int freq);
+    bool active;  //true is on, false is off
   private:
     int _pin;
 };
