@@ -6,6 +6,7 @@
 #include "ultrasound.h"
 #include "solar_panel.h"
 #include "light.h"
+#include "ir_sensor.h"
 
 class Bot
 {
@@ -43,6 +44,7 @@ class Bot
     void selfNavigate();
     
     void analogPrint(int pin);
+    bool resting;   //is the solar panel in resting position?
   private:
     // Motor control pins.
     int _left_control;

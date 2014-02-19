@@ -5,8 +5,12 @@
 Servo _pan_servo;
 Servo _tilt_servo;
 
-#define TILT_MIN 95
+#define TILT_MIN 92  // where it hits the stopper (one click past that just in case so it falls ing the range)
 #define TILT_MAX 180
+#define TILT_RESTING 100 //the tilt position for resting and moving
+#define TILT_CLEARANCE 110 //the min height that the tilt servo should be before the pan servo pans
+#define PAN_MIN 0    //we may later have something blocking the pan from going all the way
+#define PAN_MAX 180
 
 // Constructor for an SolarPanel.
 // pan    : pan servo's pin
@@ -47,86 +51,152 @@ void SolarPanel::setup() {
 }
 
 //attach or detach the given servo to the given pin and set position variable. This makes for short and fast attach/detach actions, ie. saving power
-//servName must be "pan" or "tilt"
-void SolarPanel::connectServo(boolean con, Servo serv, int pin, String servName){
+//can be used to get postion
+int SolarPanel::connectServo(boolean con, Servo serv, int pin){
   if(con){
-    if(debug){ Serial.println("Attempting to attach " + servName + " servo..."); }
     if(!serv.attached()){
       serv.attach(pin);
-      if(servName == "pan"){ _pan_pos = serv.read(); }
-      else if (servName == "tilt"){ _tilt_pos = serv.read(); }
-      if(debug){ Serial.println(servName + " servo attached successfully"); }
-    }else{
-      if(debug){ Serial.println(servName + " servo already attached"); }
     }
+    return serv.read();
   }else{
-    if(debug){ Serial.println("Attempting to detach " + servName + " servo..."); }
-    if(_pan_servo.attached()){
-      _pan_servo.detach();
-      if(debug){ Serial.println(servName + " servo detached successfully"); }
-    }else{
-      if(debug){ Serial.println(servName + " servo not attached"); }
+    if(serv.attached()){
+      serv.detach();
     }
+    return -1;
   }
 }
 //attach/detach the tilt servo to the pin specified in the constructor and set position variable. This makes for short and fast attach/detach actions, ie. saving power
-void SolarPanel::connectTilt(boolean con){
-  connectServo(con, _tilt_servo, _tilt_servo_pin, "tilt");
+int SolarPanel::connectTilt(boolean con){
+  return connectServo(con, _tilt_servo, _tilt_servo_pin);
 }
 //attach/detach the pan servo to the pin specified in the constructor and set position variable. This makes for short and fast attach/detach actions, ie. saving power
-void SolarPanel::connectPan(boolean con){
-  connectServo(con, _pan_servo, _pan_servo_pin, "pan");
+int SolarPanel::connectPan(boolean con){
+  return connectServo(con, _pan_servo, _pan_servo_pin);
 }
 
 //set the pan servo to the given position. This is not a smooth movement, it's a snap to position
-void SolarPanel::pan(int pos){
-  if(_pan_servo_pin != NULL){
+int SolarPanel::pan(int pos){
+  connectPan(true);
+  if(pos <= PAN_MAX && pos >= PAN_MIN ){
     _pan_servo.write(pos);
-    _pan_pos = pos;
-  }else{
-    Serial.println("No pan servo attached");
   }
+  return _pan_servo.read();
+}
+//panning that makes sure that the tilt is past the clearance value. Good for user control
+int SolarPanel::panSafe(int pos){
+  if(connectTilt(true) < TILT_CLEARANCE){
+    tiltSmooth(TILT_CLEARANCE);
+  }
+  return pan(pos);
 }
 
 //set the tilt servo to the given position. This is not a smooth movement, it's a snap to position
-void SolarPanel::tilt(int pos){
-  if(_tilt_servo_pin != NULL){
-    if(pos < TILT_MAX && pos > TILT_MIN ){
-      _tilt_servo.write(pos);
-      _tilt_pos = pos;
-    }else{ if(debug){ Serial.println("Cannot move beyond servo limits"); } }
-  }else{ if(debug){ Serial.println("No tilt servo attached"); } }
+int SolarPanel::tilt(int pos){
+  connectTilt(true);
+  if(pos <= TILT_MAX && pos >= TILT_MIN ){  //MUST BE <= and >= because you may want to go to the max or min pos
+    _tilt_servo.write(pos);
+  }
+  return _tilt_servo.read();
+}
+
+//pan the panel one degree right
+int SolarPanel::panRight(){
+  return pan(connectPan(true) + 1);
+}
+//pan the panel one degree right
+int SolarPanel::panLeft(){
+  return pan(connectPan(true) - 1);
+}
+//pan the panel one degree right
+int SolarPanel::panRightSafe(){
+  return panSafe(connectPan(true) + 1);
+}
+//pan the panel one degree right
+int SolarPanel::panLeftSafe(){
+  return panSafe(connectPan(true) - 1);
+}
+
+//pan to the given position smoothly
+int SolarPanel::panSmooth(int pos){
+  return panSmooth(pos, 50);
+}
+//pan to the given position smoothly at the given speed
+int SolarPanel::panSmooth(int pos, int spd){
+  int cur_pos = connectPan(true);
+  if(cur_pos != pos){
+    while(cur_pos < pos){
+      cur_pos = panRight();   //these may be backwards
+      delay(spd);
+    }
+    while(cur_pos > pos){
+      cur_pos = panLeft();
+      delay(spd);
+    }
+  }
+  return _pan_servo.read();
+}
+
+//tilt the panel up one degree and keep track of the position
+int SolarPanel::tiltUp(){
+  return tilt(connectTilt(true) - 1);
+}
+//tilt the panel down one degree and keep track of the position
+int SolarPanel::tiltUpSafe(){
+  int cur_pos = connectTilt(true);
+  if(cur_pos < TILT_CLEARANCE){
+    return cur_pos;
+  }else{
+    return tilt(connectTilt(true) - 1);
+  }
+}
+//tilt the panel down one degree and keep track of the position
+int SolarPanel::tiltDown(){
+  return tilt(connectTilt(true) + 1);
+}
+
+//tilt to the given position smoothly
+int SolarPanel::tiltSmooth(int pos){    //IF this is too fast then call the other one with a set speed. The other one has a speed
+  return tiltSmooth(pos, 50);
+}
+//tilt to the given position smoothly at the given speed
+int SolarPanel::tiltSmooth(int pos, int spd){
+  int cur_pos = connectTilt(true);
+  if(cur_pos != pos){
+    while(cur_pos < pos){
+      cur_pos = tiltDown();   //these may be backwards
+      delay(spd);
+    }
+    while(cur_pos > pos){
+      Serial.println("up");
+      cur_pos = tiltUp();
+      delay(spd);
+    }
+  }
+  return _tilt_servo.read();
 }
 
 //place panel on top and center of the bot
-void SolarPanel::reset() {
-  if (!_pan_servo_pin) return;  // ensure something exists
-  
-  int tilt_to = 130;
+bool SolarPanel::reset() {
   int servo_delay = 50;
-  int pan_angle = _pan_servo.read();
-  int tilt_angle = _tilt_servo.read();
-
-  if (tilt_angle < tilt_to && pan_angle != 90) {
-    // _pan_servo.attach(panServoPin);
-    // _tilt_servo.attach(tiltServoPin);
-
-    while (pan_angle != 90) {
-      if (pan_angle > 90) {
-        pan(pan_angle--);
-      } else {
-        pan(pan_angle++);
-      }
-      delay(servo_delay);
+  int _tilt_pos = connectTilt(true);
+  int _pan_pos = connectPan(true);
+  
+  if (_tilt_pos != TILT_RESTING || _pan_pos != 90) { //if it's not in position
+    if(_tilt_pos < TILT_CLEARANCE){ 
+      _tilt_pos = tiltSmooth(TILT_CLEARANCE);
     }
-
-    while (tilt_angle < tilt_to) {
-      tilt(tilt_angle++);
-      delay(servo_delay);
+    if(_pan_pos != 90){  //center the pan
+      _pan_pos = panSmooth(90);
+    }
+    if(_tilt_pos != TILT_RESTING){   //now rest the tilt
+      _tilt_pos = tiltSmooth(TILT_RESTING);
     }
   }
-  // _pan_servo.detach();
-  // _tilt_servo.detach();
+  if(debug){ Serial.println("Solar panel in position"); }
+  
+  connectTilt(false);
+  connectPan(false);
+  return true; //success
 }
 
 //Print out the sensors reading on the serial monitor
@@ -147,77 +217,26 @@ void SolarPanel::trackLight(){
   int SPEED = 50; //rate at which servos move to follow light (in milliseconds)
   
   //FEATURE: Moving the bot once panel is too far to one side
-//  if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + range && tiltServoPosition >= 180){
-//    //turn the bot 180
-//    turnLeft();
-//    delay(750);
-//    stopMovement();
-//    //set the panel down a bit
-//    tiltServoPosition = 150;
-//    tiltServo.attach(tiltServoPin);  // attaches the servo on servo pin to the servo object
-//    tiltServo.write(tiltServoPosition);
-//    delay(1000);
-//  }else{
-//    if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + range && tiltServoPosition < 160){
-//      tiltServoPosition = tiltServoPosition + servoSpeed;
-//      tiltServo.attach(tiltServoPin);  // attaches the servo on servo pin to the servo object
-//      tiltServo.write(tiltServoPosition);
-//    }else if(analogRead(_bottom_photoresistor_right_photoresistor) > analogRead(_top_photoresistor) + range && tiltServoPosition > 74){
-//      tiltServoPosition = tiltServoPosition - servoSpeed;
-//      tiltServo.attach(tiltServoPin);  // attaches the servo on servo pin to the servo object
-//      tiltServo.write(tiltServoPosition);
-//    }else {
-//      tiltServo.detach();
-//    }
-//  }
-//  if(panServoPosition <= 10){
-//    //turn the bot right to allow it to get more light in that direction
-//    turnRight();
-//    delay(300);
-//    stopMovement();
-//    //reset the panel back a bit
-//    panServoPosition = 20;
-//    panServo.attach(panServoPin); 
-//    panServo.write(panServoPosition);
-//    delay(1000);
-//  }else if(panServoPosition >= 170){
-//    //turn the bot left
-//    turnLeft();
-//    delay(300);
-//    stopMovement();
-//    //reset the panel position left a bit
-//    panServoPosition = 160;
-//    panServo.attach(panServoPin);
-//    panServo.write(panServoPosition);
-//    delay(1000);
-//  }else{
-  
+
   if(debug && false){
-    String str1 = "Pan servo reads ";
-    String str2 = " and Tilt servo reads ";
-    Serial.println(str1 + _pan_pos + str2 + _tilt_pos);
-    //readoutSensors();
+    readoutSensors();
   }
-  if(analogRead(_right_photoresistor) < analogRead(_left_photoresistor) - RLRANGE && _pan_pos > 10){
+  if(analogRead(_right_photoresistor) < analogRead(_left_photoresistor) - RLRANGE){
     if(debug){ Serial.println("Turn panel right"); }
-    connectPan(true);
-    pan(_pan_pos + 1);
-  }else if(analogRead(_left_photoresistor) < analogRead(_right_photoresistor) - RLRANGE && _pan_pos < 170){
+    panRight();
+  }else if(analogRead(_left_photoresistor) < analogRead(_right_photoresistor) - RLRANGE){
     if(debug){ Serial.println("Turn panel left"); }
-    connectPan(true);
-    pan(_pan_pos - 1);
+    panLeft();
   }else{
     connectPan(false);
   }
   delay(SPEED);
-  if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + TBRANGE && _tilt_pos > TILT_MIN){
+  if(analogRead(_top_photoresistor) > analogRead(_bottom_photoresistor) + TBRANGE){
     if(debug){ Serial.println("Turn panel up"); }
-    connectTilt(true);
-    tilt(_tilt_pos - 1);
-  }else if(analogRead(_bottom_photoresistor) > analogRead(_top_photoresistor) + TBRANGE && _tilt_pos < TILT_MAX){
+    tiltUp();
+  }else if(analogRead(_bottom_photoresistor) > analogRead(_top_photoresistor) + TBRANGE){
     if(debug){ Serial.println("Turn panel down"); }
-    connectTilt(true);
-    tilt(_tilt_pos + 1);
+    tiltDown();
   }else{
     connectTilt(false);
   }
@@ -230,19 +249,19 @@ void SolarPanel::userControl(int input){
   Serial.print(input);
   switch (input){
     case 119:  //down
-      tilt(_tilt_pos - 1);
+      tiltUp();
       if(debug){ Serial.println("User moved panel UP"); }
       break;
     case 115:  //up
-      tilt(_tilt_pos + 1);
+      tiltDown();
       if(debug){ Serial.println("User moved panel DOWN"); }
       break;
     case 100:  //left
-      pan(_pan_pos + 1);
+      panLeft();
       if(debug){ Serial.println("User moved panel LEFT"); }
       break;
     case 97:  //right
-      pan(_pan_pos - 1);
+      panRight();
       if(debug){ Serial.println("User moved panel RIGHT"); }
       break;
   }

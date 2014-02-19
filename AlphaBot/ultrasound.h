@@ -14,7 +14,7 @@ class Ultrasound
     void detach();
     void sweep(int distances[], int from, int to);
     unsigned long ping();
-    void rotate(int position);
+    void rotate(int pos);
   private:
     int _pin;
     int _servo_pin;

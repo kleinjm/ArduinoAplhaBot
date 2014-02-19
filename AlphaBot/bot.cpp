@@ -18,6 +18,7 @@ Bot::Bot(int lc, int rc, int lp, int rp) {
   _right_control = rc;
   _left_power    = lp;
   _right_power   = rp;
+  resting = false;   //not yet resting
 }
 
 /* CONNECT SENSORS */
