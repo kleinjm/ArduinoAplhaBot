@@ -22,7 +22,7 @@ Refactoring in progress by Nathan Lilienthal
 // - right_control on 13
 // - left_power on 3
 // - right_power on 11
-Bot abot(12, 13, 3, 11);
+Bot abot = Bot();
 
 int IRpin = 2;  // pin for the IR sensor
 IRrecv irrecv(IRpin);
@@ -38,13 +38,17 @@ unsigned long irRecLM = 0;
 #define trackLightCycle 50U
 unsigned long trackLightLM = 0;
 
+Servo tilt;
+Servo pan;
+
 void setup() {
   Serial.begin(9600);
 
   // attach sensors to bot.
   abot.attach_ultrasound(5, 4);
-  abot.attach_solar_panel(DEBUG, 6, 7, A4, A5, A3, A2); //must use A2 - A5 to get the right sensitivity
+  abot.attach_solar_panel(DEBUG, 6, 7, A4, A5, A3, A2); //pan, tilt. must use A2 - A5 to get the right sensitivity
   abot.attach_light(8);
+  abot.attach_motors(12, 13, 3, 11, 6, 7); // the last 2 numbers denote the pan and tilt pins for the solar panel
   
   irrecv.enableIRIn(); // Start the receiver for IR
 }
@@ -86,7 +90,7 @@ void loop() {
         abot.resting = abot.solar_panel.rest();
       }
       //Serial.println(abot.resting);
-      break
+      break;
     case four_up:
       Serial.println("Four up - tilt up");
       abot.solar_panel.tiltUpSafe();
@@ -109,6 +113,7 @@ void loop() {
       break;
     case two_up:
       Serial.println("Two up");
+      abot.motors.forwardFull();  //being on the same circut as the board drains too much power and stops it from responding.
       break;
     case two_down:
       Serial.println("Two down");

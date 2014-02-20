@@ -3,21 +3,8 @@
 #include "ultrasound.h"
 #include "variables.h"
 
-#define MOTOR_OFF 0       // Motor stopped
-#define MOTOR_FULL 511    // Max motor speed
-#define MOTOR_HALF 127    // Half motor speed
-#define MOTOR_QUARTER 125 // Quarter motor speed
-
-#define FORWARD LOW
-#define BACKWARD HIGH
-
 // Constructor for a Bot.
-// without a ultrasound, can only do basic movements.
-Bot::Bot(int lc, int rc, int lp, int rp) {
-  _left_control  = lc;
-  _right_control = rc;
-  _left_power    = lp;
-  _right_power   = rp;
+Bot::Bot() {
   resting = false;
 }
 
@@ -42,6 +29,11 @@ void Bot::attach_light(int pin) {
   light = Light(pin);
   light.setup();
   hasLight = true;
+}
+void Bot::attach_motors(int lc, int rc, int lp, int rp, int pan_pin, int tilt_pin){
+  motors = Motors(lc, rc, lp, rp, pan_pin, tilt_pin);
+  motors.setup();
+  hasMotors = true;
 }
 
 //print the analog read vlaue of the specified pin

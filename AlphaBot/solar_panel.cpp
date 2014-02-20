@@ -215,7 +215,7 @@ bool SolarPanel::rest() {
       _tilt_pos = tiltSmooth(TILT_RESTING);
     }
   }
-  if(debug){ Serial.println("Solar panel in position"); }
+  if(debug){ Serial.println("Solar panel in resting position"); }
   
   connectTilt(false);
   connectPan(false);

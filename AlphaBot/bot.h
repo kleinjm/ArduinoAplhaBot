@@ -7,11 +7,12 @@
 #include "solar_panel.h"
 #include "light.h"
 #include "ir_sensor.h"
+#include "motors.h"
 
 class Bot
 {
   public:
-    Bot(int lc, int rc, int lp, int rp);
+    Bot();
 
     /* COMPONENTS */
     Ultrasound ultrasound;
@@ -26,6 +27,10 @@ class Bot
     Light light;
     bool hasLight;
     void attach_light(int pin);
+    
+    Motors motors;
+    bool hasMotors;
+    void attach_motors(int lc, int rc, int lp, int rp, int pan_pin, int tilt_pin);
 
     void stop();
     void moveForward();
@@ -49,12 +54,7 @@ class Bot
     boolean cycleCheck(unsigned long *lastMillis, unsigned int cycle); //multithreading cycle timer
     bool resting; //tells us if the panel is in resting position. This is set once when we try to rest so that the servos dont need to turn on
   private:
-    // Motor control pins.
-    int _left_control;
-    int _right_control;
-    // Motor power pins.
-    int _left_power;
-    int _right_power;
+    
 };
 
 #endif
